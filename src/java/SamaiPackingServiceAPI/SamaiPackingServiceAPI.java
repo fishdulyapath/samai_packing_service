@@ -1093,7 +1093,7 @@ public class SamaiPackingServiceAPI {
                     + "from ic_trans ic "
                     + "left join ar_customer ar on ar.code = ic.cust_code "
                     + "left join erp_user erp on erp.code = ic.sale_code "
-                    + "where trans_flag in (36,44) and last_status = 0 "
+                    + "where trans_flag in (36,44) and last_status = 0 and is_pos = 0"
                     + "AND NOT EXISTS (select doc_no from krp_trans krp where krp.doc_ref = ic.doc_no) "
                     + _where + _whereText;
 
@@ -1115,7 +1115,7 @@ public class SamaiPackingServiceAPI {
                     + "from ic_trans ic "
                     + "left join ar_customer ar on ar.code = ic.cust_code "
                     + "left join erp_user erp on erp.code = ic.sale_code "
-                    + " where trans_flag in (36,44) and last_status = 0 "
+                    + " where trans_flag in (36,44) and last_status = 0 and is_pos = 0"
                     + " AND NOT EXISTS (select doc_no from krp_trans krp where krp.doc_ref = ic.doc_no) "
                     + _where + _whereText
                     + " order by ic.create_datetime DESC "
