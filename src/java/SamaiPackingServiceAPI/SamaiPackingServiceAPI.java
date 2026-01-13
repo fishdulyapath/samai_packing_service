@@ -175,7 +175,7 @@ public class SamaiPackingServiceAPI {
             }
 
             _whereFinal = _where;
-            String __strQUERY1 = "select split_part(ic_code, '-', 1) AS ic_code,barcode,description,unit_code from ic_inventory_barcode where 1=1 " + _whereFinal + " limit 1500";
+            String __strQUERY1 = "select split_part(ic_code, '-', 1) AS item_ref_code,ic_code,barcode,description,unit_code from ic_inventory_barcode where 1=1 " + _whereFinal + " limit 1500";
 
             Statement __stmt1 = __conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet __rsHead = __stmt1.executeQuery(__strQUERY1);
@@ -185,6 +185,7 @@ public class SamaiPackingServiceAPI {
                 JSONObject obj = new JSONObject();
 
                 obj.put("barcode", __rsHead.getString("barcode"));
+                obj.put("item_ref_code", __rsHead.getString("item_ref_code"));
                 obj.put("item_code", __rsHead.getString("ic_code"));
                 obj.put("item_name", __rsHead.getString("description"));
                 obj.put("unit_code", __rsHead.getString("unit_code"));
@@ -220,7 +221,7 @@ public class SamaiPackingServiceAPI {
             String _whereFinal = "";
 
             _whereFinal = _where;
-            String __strQUERY1 = "select split_part(ic_code, '-', 1) AS ic_code,barcode,description,unit_code from ic_inventory_barcode where 1=1 and barcode='" + strSearch + "' limit 1500";
+            String __strQUERY1 = "select split_part(ic_code, '-', 1) AS item_ref_code,ic_code,barcode,description,unit_code from ic_inventory_barcode where 1=1 and barcode='" + strSearch + "' limit 1500";
 
             Statement __stmt1 = __conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet __rsHead = __stmt1.executeQuery(__strQUERY1);
@@ -229,7 +230,8 @@ public class SamaiPackingServiceAPI {
 
                 JSONObject obj = new JSONObject();
 
-                obj.put("barcode", __rsHead.getString("barcode"));
+               obj.put("barcode", __rsHead.getString("barcode"));
+                obj.put("item_ref_code", __rsHead.getString("item_ref_code"));
                 obj.put("item_code", __rsHead.getString("ic_code"));
                 obj.put("item_name", __rsHead.getString("description"));
                 obj.put("unit_code", __rsHead.getString("unit_code"));
@@ -266,11 +268,11 @@ public class SamaiPackingServiceAPI {
             JSONArray jsarrDetailSo = new JSONArray();
             JSONArray jsarrDetail = new JSONArray();
             String query = "SELECT\n"
-                    + "    split_part(td.barcode, '-', 1) AS barcode,\n"
-                    + "    split_part(td.item_code, '-', 1) AS item_code,\n"
+                    + "    split_part(td.item_code, '-', 1) AS item_ref_code,\n"
+                    + "    td.item_code AS item_code,\n"
                     + "    COALESCE(i.name_1, '') AS item_name,\n"
                     + "    td.unit_code, "
-                    + "    SUM(td.qty) AS qty "
+                    + "    td.qty AS qty "
                     + " FROM ic_trans_detail td "
                     + " LEFT JOIN ic_inventory i "
                     + "  ON i.code = td.item_code  "
@@ -279,17 +281,14 @@ public class SamaiPackingServiceAPI {
                     + "    FROM krp_trans\n"
                     + "    WHERE doc_no = '" + __doc_no + "' "
                     + " )\n"
-                    + " GROUP BY\n"
-                    + "    split_part(td.barcode, '-', 1),\n"
-                    + "    split_part(td.item_code, '-', 1),\n"
-                    + "    i.name_1,\n"
-                    + "    td.unit_code;";
+                    + " order by line_number asc;";
 //            System.out.println("query " + query);
             Statement __stmt = __conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             ResultSet __rsHead = __stmt.executeQuery(query);
             while (__rsHead.next()) {
                 JSONObject obj = new JSONObject();
-                obj.put("barcode", __rsHead.getString("barcode"));
+               obj.put("barcode", "");
+                obj.put("item_ref_code", __rsHead.getString("item_ref_code"));
                 obj.put("item_code", __rsHead.getString("item_code"));
                 obj.put("item_name", __rsHead.getString("item_name"));
 
@@ -1474,7 +1473,7 @@ public class SamaiPackingServiceAPI {
                         + "    so_qty, "
                         + "    remark, "
                         + "    line_number) "
-                        + "values ('" + docno + "','" + objJSDataItem.getString("barcode") + "','','" + objJSDataItem.getString("item_code") + "','" + objJSDataItem.getString("unit_code") + "','" + objJSDataItem.getString("qty") + "','0',''," + i + ");");
+                        + "values ('" + docno + "','','','" + objJSDataItem.getString("item_code") + "','" + objJSDataItem.getString("unit_code") + "','" + objJSDataItem.getString("qty") + "','0',''," + i + ");");
 
             }
             Statement __stmtDetail;
